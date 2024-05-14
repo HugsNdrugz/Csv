@@ -30,11 +30,12 @@ function handleFileSelect(event) {
 const storedData = localStorage.getItem("appUsageData");
 if (storedData) {
     const parsedData = JSON.parse(storedData);
-    displayAppIcons(parsedData); // Display app icons if data exists
+    displayAppIcons(parsedData); 
 } else {
-  // Fetch initial CSV Data from Netlify when the page loads and no data in local storage
-  loadData(fetch('https://hugsndrugz.netlify.app/data.csv'));
+    // Fetch initial CSV Data from Netlify when the page loads and no data in local storage
+    loadData(fetch('https://hugsndrugz.netlify.app/data.csv'));
 }
+
 
 // Add event listener to file input
 csvFileInput.addEventListener("change", (event) => {
@@ -51,7 +52,7 @@ function parseCSV(csvData) {
         if (row.length === 3) {
             // Check if the first row is a header row
             if (i === 0 && row[0].toLowerCase().includes("application") && row[1].toLowerCase().includes("time") && row[2].toLowerCase().includes("text")) {
-                continue; // Skip the header row
+                continue; 
             }
 
             parsedData.push({
@@ -73,11 +74,10 @@ function displayAppIcons(data) {
     uniqueApps.forEach(appName => {
         const icon = document.createElement("div");
         icon.classList.add("app-icon");
-
-        // Extract app name from package name
-        const appNameParts = appName.split(".");
-        const displayName = appNameParts[appNameParts.length - 2]; 
-        icon.textContent = displayName; 
+        
+        // Extract the first letter of the app name for the icon
+        const firstLetter = appName.charAt(0).toUpperCase();
+        icon.textContent = firstLetter; 
 
         icon.addEventListener("click", () => {
             displayTextMessages(data, appName);
