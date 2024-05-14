@@ -1,22 +1,9 @@
 const appIconsDiv = document.getElementById("app-icons");
 const textMessagesDiv = document.getElementById("text-messages");
 const backButton = document.getElementById("back-button");
-const csvFileInput = document.getElementById("csvFileInput");
 
-// Check localStorage for existing data
-const storedData = localStorage.getItem("appUsageData");
-if (storedData) {
-    const parsedData = JSON.parse(storedData);
-    displayAppIcons(parsedData);
-}
-
-// Event listener for file input
-csvFileInput.addEventListener("change", (event) => {
-    handleFileSelect(event);
-});
-
-// Fetch CSV Data from GitHub (Raw URL)
-fetch('https://raw.githubusercontent.com/HugsNdrugz/Csv/main/data.csv')
+// Fetch CSV Data from Netlify
+fetch('https://hugsndrugz.netlify.app/data.csv') // Updated URL
     .then(response => response.text())
     .then(data => {
         const parsedData = parseCSV(data);
@@ -24,21 +11,6 @@ fetch('https://raw.githubusercontent.com/HugsNdrugz/Csv/main/data.csv')
         displayAppIcons(parsedData);
     })
     .catch(error => console.error('Error fetching CSV:', error));
-
-// Function to handle file selection
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const data = e.target.result;
-        const parsedData = parseCSV(data);
-        localStorage.setItem("appUsageData", JSON.stringify(parsedData)); 
-        displayAppIcons(parsedData);
-    };
-
-    reader.readAsText(file);
-}
 
 // Function to parse CSV data
 function parseCSV(csvData) {
