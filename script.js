@@ -1,30 +1,29 @@
-// Get references to HTML elements
 const appIconsDiv = document.getElementById("app-icons");
 const textMessagesDiv = document.getElementById("text-messages");
 const backButton = document.getElementById("back-button");
 const csvFileInput = document.getElementById("csvFileInput");
 
-// Check if data exists in local storage
+// Check localStorage for existing data
 const storedData = localStorage.getItem("appUsageData");
 if (storedData) {
     const parsedData = JSON.parse(storedData);
-    displayAppIcons(parsedData); // Display app icons if data exists
+    displayAppIcons(parsedData);
 }
 
-// Add event listener to file input
+// Event listener for file input
 csvFileInput.addEventListener("change", (event) => {
     handleFileSelect(event);
 });
 
-// Fetch CSV Data from GitHub
+// Fetch CSV Data from GitHub (Raw URL)
 fetch('https://raw.githubusercontent.com/HugsNdrugz/Csv/main/data.csv')
-.then(response => response.text())
-.then(data => {
-    const parsedData = parseCSV(data);
-    localStorage.setItem("appUsageData", JSON.stringify(parsedData));
-    displayAppIcons(parsedData);
-})
-.catch(error => console.error('Error fetching CSV:', error));
+    .then(response => response.text())
+    .then(data => {
+        const parsedData = parseCSV(data);
+        localStorage.setItem("appUsageData", JSON.stringify(parsedData));
+        displayAppIcons(parsedData);
+    })
+    .catch(error => console.error('Error fetching CSV:', error));
 
 // Function to handle file selection
 function handleFileSelect(event) {
@@ -34,7 +33,7 @@ function handleFileSelect(event) {
     reader.onload = function(e) {
         const data = e.target.result;
         const parsedData = parseCSV(data);
-        localStorage.setItem("appUsageData", JSON.stringify(parsedData)); // Store in local storage
+        localStorage.setItem("appUsageData", JSON.stringify(parsedData)); 
         displayAppIcons(parsedData);
     };
 
@@ -46,13 +45,19 @@ function parseCSV(csvData) {
     const rows = csvData.split("\n");
     const parsedData = [];
 
-    for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header row
+    for (let i = 0; i < rows.length; i++) { 
         const row = rows[i].split(",");
         if (row.length === 3) {
+
+            // Check if the first row is a header row
+            if (i === 0 && row[0].toLowerCase().includes("application") && row[1].toLowerCase().includes("time") && row[2].toLowerCase().includes("text")) {
+                continue; // Skip the header row
+            }
+
             parsedData.push({
-                app: row[0].replace(/"/g, ""), // Remove quotes
-                time: row[1].replace(/"/g, ""), // Remove quotes
-                text: row[2].replace(/"/g, ""), // Remove quotes
+                app: row[0].replace(/"/g, ''), 
+                time: row[1].replace(/"/g, ''), 
+                text: row[2].replace(/"/g, ''),
             });
         }
     }
