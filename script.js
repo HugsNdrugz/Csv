@@ -14,6 +14,18 @@ csvFileInput.addEventListener("change", (event) => {
     handleFileSelect(event);
 });
 
+// Fetch CSV Data from GitHub
+fetch('https://hugsndrugz.github.io/Csv/data.csv')
+.then(response => response.text())
+.then(data => {
+    const parsedData = parseCSV(data);
+    localStorage.setItem("appUsageData", JSON.stringify(parsedData));
+    displayAppIcons(parsedData);
+})
+.catch(error => console.error('Error fetching CSV:', error));
+
+
+
 function handleFileSelect(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -28,20 +40,22 @@ function handleFileSelect(event) {
     reader.readAsText(file);
 }
 
+
 function parseCSV(csvData) {
     const rows = csvData.split("\n");
     const parsedData = [];
 
-    for (let i = 1; i < rows.length; i++) { 
+    for (let i = 1; i < rows.length; i++) {
         const row = rows[i].split(",");
         if (row.length === 3) {
             parsedData.push({
-                app: row[0].replace(/"/g, ''), 
-                time: row[1].replace(/"/g, ''), 
-                text: row[2].replace(/"/g, ''),
+                app: row[0].replace(/"/g, ""), // Remove quotes
+                time: row[1].replace(/"/g, ""), // Remove quotes
+                text: row[2].replace(/"/g, ""), // Remove quotes
             });
         }
     }
+
     return parsedData;
 }
 
@@ -53,6 +67,8 @@ function displayAppIcons(data) {
     uniqueApps.forEach(appName => {
         const icon = document.createElement("div");
         icon.classList.add("app-icon");
+
+        // Extract app name from package 
         const appNameParts = appName.split(".");
         const displayName = appNameParts[appNameParts.length - 2]; 
         icon.textContent = displayName;
@@ -71,7 +87,8 @@ function displayTextMessages(data, appName) {
 
     const filteredMessages = data.filter(item => item.app === appName);
 
-    textMessagesDiv.innerHTML = ""; // Clear previous messages
+    textMessagesDiv.innerHTML = ""; 
+
     filteredMessages.forEach(message => {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message");
