@@ -1,16 +1,45 @@
 const appIconsDiv = document.getElementById("app-icons");
 const textMessagesDiv = document.getElementById("text-messages");
 const backButton = document.getElementById("back-button");
+const csvFileInput = document.getElementById("csvFileInput");
 
-// Fetch CSV Data from Netlify
-fetch('https://hugsndrugz.netlify.app/data.csv') // Updated URL
-    .then(response => response.text())
-    .then(data => {
-        const parsedData = parseCSV(data);
-        localStorage.setItem("appUsageData", JSON.stringify(parsedData));
-        displayAppIcons(parsedData);
-    })
-    .catch(error => console.error('Error fetching CSV:', error));
+// Function to load CSV data from the specified source (file or URL)
+function loadData(dataSource) {
+    dataSource.then(response => response.text())
+        .then(data => {
+            const parsedData = parseCSV(data);
+            localStorage.setItem("appUsageData", JSON.stringify(parsedData));
+            displayAppIcons(parsedData);
+        })
+        .catch(error => console.error('Error loading CSV:', error));
+}
+
+// Function to handle file selection
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        loadData(Promise.resolve(e.target.result)); // Load from file content
+    };
+
+    reader.readAsText(file);
+}
+
+// Check localStorage for existing data on page load
+const storedData = localStorage.getItem("appUsageData");
+if (storedData) {
+    const parsedData = JSON.parse(storedData);
+    displayAppIcons(parsedData); // Display app icons if data exists
+} else {
+  // Fetch initial CSV Data from Netlify when the page loads and no data in local storage
+  loadData(fetch('https://hugsndrugz.netlify.app/data.csv'));
+}
+
+// Add event listener to file input
+csvFileInput.addEventListener("change", (event) => {
+    handleFileSelect(event);
+});
 
 // Function to parse CSV data
 function parseCSV(csvData) {
@@ -20,7 +49,6 @@ function parseCSV(csvData) {
     for (let i = 0; i < rows.length; i++) { 
         const row = rows[i].split(",");
         if (row.length === 3) {
-
             // Check if the first row is a header row
             if (i === 0 && row[0].toLowerCase().includes("application") && row[1].toLowerCase().includes("time") && row[2].toLowerCase().includes("text")) {
                 continue; // Skip the header row
